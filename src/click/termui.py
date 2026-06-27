@@ -11,6 +11,7 @@ from contextlib import AbstractContextManager
 from contextlib import redirect_stdout
 from gettext import gettext as _
 
+from . import _compat
 from ._compat import isatty
 from ._compat import strip_ansi
 from .exceptions import Abort
@@ -266,6 +267,9 @@ def confirm(
         show_default,
         "y/n" if default is None else ("Y/n" if default else "y/N"),
     )
+
+    if _compat.should_strip_ansi():
+        prompt = strip_ansi(prompt)
 
     while True:
         try:

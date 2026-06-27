@@ -217,6 +217,15 @@ def test_confirm_repeat(runner):
     assert result.output == "A [y/n]: \nError: invalid input\nA [y/n]: y\n"
 
 
+def test_confirm_strips_ansi_with_color_false(runner):
+    @click.command()
+    def cmd():
+        click.confirm(click.style("Hello World!", fg="green"), abort=True)
+
+    result = runner.invoke(cmd, input="Y", color=False)
+    assert result.output == "Hello World! [y/N]: Y\n"
+
+
 @pytest.mark.skipif(WIN, reason="Different behavior on windows.")
 def test_prompts_abort(monkeypatch, capsys):
     def f(_):
