@@ -350,6 +350,29 @@ def test_progress_bar_update_min_steps(runner):
     assert bar.pos == 5
 
 
+def test_progress_bar_finish_flushes_remaining_steps():
+    """Regression test for pallets/click#3571.
+
+    When update_min_steps doesn't divide evenly into length,
+    the final render must show the completed position.
+    """
+    bar = click.progressbar(range(20), update_min_steps=7, show_pos=True)
+    bar.entered = True
+
+    for i in range(20):
+        bar.current_item = i
+        bar.update(1)
+
+    assert bar.pos == 14
+    assert bar._completed_intervals == 6
+
+    bar.finish()
+
+    assert bar.pos == 20
+    assert bar._completed_intervals == 0
+    assert bar.finished is True
+
+
 @pytest.mark.parametrize("key_char", ("h", "H", "é", "À", " ", "字", "àH", "àR"))
 @pytest.mark.parametrize("echo", [True, False])
 @pytest.mark.skipif(not WIN, reason="Tests user-input using the msvcrt module.")
